@@ -48,14 +48,14 @@ NSString *YZPermissionStatusNameMapping[] = {
 
 - (void)showAlertController {
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"get permission" message:@"I need to use some application permissions" preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *confirm = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    UIAlertAction *confirm = [UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         NSURL *systemSettingsURL = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
         if([[UIApplication sharedApplication] canOpenURL:systemSettingsURL]) {
             [[UIApplication sharedApplication] openURL:systemSettingsURL];
         }
     }];
     
-    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
         
     }];
     [alertController addAction:confirm];

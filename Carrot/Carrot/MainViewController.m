@@ -11,17 +11,17 @@
 #import "PermissionViewController.h"
 
 NSString *YZPermissionResourceNameMapping[] = {
-    [YZPermissionResourceNotifications] = @"Notifcations",
-    [YZPermissionResourceLocationWhileInUse] = @"LocationWhileInUse",
-    [YZPermissionResourceLocationAlways] = @"LocationAlways",
-    [YZPermissionResourceContacts] = @"Contacts",
-    [YZPermissionResourceEvents] = @"Events",
-    [YZPermissionResourceMicrophone] = @"Microphone",
-    [YZPermissionResourceCamera] = @"Camera",
-    [YZPermissionResourcePhotos] = @"Photos",
-    [YZPermissionResourceReminders] = @"Reminders",
-    [YZPermissionResourceBluetooth] = @"Bluetooth",
-    [YZPermissionResourceMotion] = @"Motion"
+    [YZPermissionResourceNotifications]         = @"Notifcations",
+    [YZPermissionResourceLocationWhileInUse]    = @"LocationWhileInUse",
+    [YZPermissionResourceLocationAlways]        = @"LocationAlways",
+    [YZPermissionResourceContacts]              = @"Contacts",
+    [YZPermissionResourceEvents]                = @"Events",
+    [YZPermissionResourceMicrophone]            = @"Microphone",
+    [YZPermissionResourceCamera]                = @"Camera",
+    [YZPermissionResourcePhotos]                = @"Photos",
+    [YZPermissionResourceReminders]             = @"Reminders",
+    [YZPermissionResourceBluetooth]             = @"Bluetooth",
+    [YZPermissionResourceMotion]                = @"Motion"
 };
 
 @interface YZPermissionCellItem : NSObject
