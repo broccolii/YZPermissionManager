@@ -24,121 +24,188 @@
 @implementation YZPermissionManager
 
 #pragma mark - request authorizationStatus
-+ (void)requestPermissionWithResource:(PermissionResource)resource
-                        agreedHandler:(void(^)())agreedHandler
-                      rejectedHandler:(void(^)())rejectedHandler {
++ (void)checkPermissionWithResource:(YZPermissionResource)resource
+                  completionHandler:(YZPermissionCompletionHandler)completionHandler {
+    switch (resource) {
+        case YZPermissionResourceNotifications:
+            [YZPermissionManager notificationsStatusWithCompletionHandler:completionHandler];
+            break;
+        case YZPermissionResourceLocationWhileInUse:
+            completionHandler([YZPermissionManager locationWhileInUseStatus]);
+            break;
+        case YZPermissionResourceLocationAlways:
+            completionHandler([YZPermissionManager locationAlwaysStatus]);
+            break;
+        case YZPermissionResourceContacts:
+            completionHandler([YZPermissionManager contactsStatus]);
+            break;
+        case YZPermissionResourceEvents:
+            completionHandler([YZPermissionManager eventsStatus]);
+            break;
+        case YZPermissionResourceMicrophone:
+            completionHandler([YZPermissionManager microphoneStatus]);
+            break;
+        case YZPermissionResourceCamera:
+            completionHandler([YZPermissionManager cameraStatus]);
+            break;
+        case YZPermissionResourcePhotos:
+            completionHandler([YZPermissionManager photosStatus]);
+            break;
+        case YZPermissionResourceReminders:
+            completionHandler([YZPermissionManager remindersStatus]);
+            break;
+        case YZPermissionResourceBluetooth:
+            completionHandler([YZPermissionManager bluetoothStatus]);
+            break;
+        case YZPermissionResourceMotion:
+            completionHandler([YZPermissionManager motionStatus]);
+            break;
+    }
+}
+
++ (void)requestPermissionWithResource:(YZPermissionResource)resource
+                        agreedHandler:(YZPermissionAgreedHandler)agreedHandler
+                      rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
     
     switch (resource) {
-        case PermissionResourceNotifications:
+        case YZPermissionResourceNotifications:
             [YZPermissionManager requestNotificationsPermissionAgreedHandler:agreedHandler rejectedHandler:rejectedHandler];
             break;
-        case PermissionResourceLocationWhileInUse:
+        case YZPermissionResourceLocationWhileInUse:
             [YZPermissionManager requestLocationWhileInUsePermissionAgreedHandler:agreedHandler rejectedHandler:rejectedHandler];
             break;
-        case PermissionResourceLocationAlways:
+        case YZPermissionResourceLocationAlways:
             [YZPermissionManager requestLocationAlwaysPermissionAgreedHandler:agreedHandler rejectedHandler:rejectedHandler];
             break;
-        case PermissionResourceContacts:
+        case YZPermissionResourceContacts:
             [YZPermissionManager requestContactsPermissionAgreedHandler:agreedHandler rejectedHandler:rejectedHandler];
             break;
-        case PermissionResourceEvents:
+        case YZPermissionResourceEvents:
             [YZPermissionManager requestEventsPermissionAgreedHandler:agreedHandler rejectedHandler:rejectedHandler];
             break;
-        case PermissionResourceMicrophone:
+        case YZPermissionResourceMicrophone:
             [YZPermissionManager requestMicrophonePermissionAgreedHandler:agreedHandler rejectedHandler:rejectedHandler];
             break;
-        case PermissionResourceCamera:
+        case YZPermissionResourceCamera:
             [YZPermissionManager requestCameraPermissionAgreedHandler:agreedHandler rejectedHandler:rejectedHandler];
             break;
-        case PermissionResourcePhotos:
+        case YZPermissionResourcePhotos:
             [YZPermissionManager requestPhotosPermissionAgreedHandler:agreedHandler rejectedHandler:rejectedHandler];
             break;
-        case PermissionResourceReminders:
+        case YZPermissionResourceReminders:
             [YZPermissionManager requestRemindersPermissionAgreedHandler:agreedHandler rejectedHandler:rejectedHandler];
             break;
-        case PermissionResourceBluetooth:
+        case YZPermissionResourceBluetooth:
             [YZPermissionManager requestBluetoothPermissionAgreedHandler:agreedHandler rejectedHandler:rejectedHandler];
             break;
-        case PermissionResourceMotion:
+        case YZPermissionResourceMotion:
             [YZPermissionManager requestMotionPermissionAgreedHandler:agreedHandler rejectedHandler:rejectedHandler];
             break;
     }
 }
 
-+ (void)requestNotificationsPermissionAgreedHandler:(void(^)())agreedHandler
-                                    rejectedHandler:(void(^)())rejectedHandler {
++ (void)requestNotificationsPermissionAgreedHandler:(YZPermissionAgreedHandler)agreedHandler
+                                    rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
     
 }
 
-+ (void)requestLocationWhileInUsePermissionAgreedHandler:(void(^)())agreedHandler
-                                         rejectedHandler:(void(^)())rejectedHandler {
++ (void)requestLocationWhileInUsePermissionAgreedHandler:(YZPermissionAgreedHandler)agreedHandler
+                                         rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
     
 }
 
-+ (void)requestLocationAlwaysPermissionAgreedHandler:(void(^)())agreedHandler
-                                     rejectedHandler:(void(^)())rejectedHandler {
++ (void)requestLocationAlwaysPermissionAgreedHandler:(YZPermissionAgreedHandler)agreedHandler
+                                     rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
     
 }
 
-+ (void)requestContactsPermissionAgreedHandler:(void(^)())agreedHandler
-                               rejectedHandler:(void(^)())rejectedHandler {
-    
-}
-
-+ (void)requestEventsPermissionAgreedHandler:(void(^)())agreedHandler
-                             rejectedHandler:(void(^)())rejectedHandler {
-    
-}
-
-+ (void)requestMicrophonePermissionAgreedHandler:(void(^)())agreedHandler
-                             rejectedHandler:(void(^)())rejectedHandler {
-    
-}
-
-+ (void)requestCameraPermissionAgreedHandler:(void(^)())agreedHandler
-                             rejectedHandler:(void(^)())rejectedHandler {
-    
-}
-
-+ (void)requestPhotosPermissionAgreedHandler:(void(^)())agreedHandler
-                             rejectedHandler:(void(^)())rejectedHandler {
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(8.0)) {
-       [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
-           
-       }];
++ (void)requestContactsPermissionAgreedHandler:(YZPermissionAgreedHandler)agreedHandler
+                               rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(9.0)) {
+        [[[CNContactStore alloc] init] requestAccessForEntityType:CNEntityTypeContacts
+                                                completionHandler:^(BOOL granted, NSError * _Nullable error) {
+                                                    dispatch_sync(dispatch_get_main_queue(), ^{
+                                                        granted ? agreedHandler() : rejectedHandler([YZPermissionManager contactsStatus]);
+                                                    });
+        }];
     } else {
-       
+        ABAddressBookRef addressBook = ABAddressBookCreateWithOptions(nil, nil);
+        ABAddressBookRequestAccessWithCompletion(addressBook, ^(bool granted, CFErrorRef error) {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                granted ? agreedHandler() : rejectedHandler([YZPermissionManager contactsStatus]);
+            });
+        });
     }
 }
 
-+ (void)requestRemindersPermissionAgreedHandler:(void(^)())agreedHandler
-                                rejectedHandler:(void(^)())rejectedHandler {
++ (void)requestEventsPermissionAgreedHandler:(YZPermissionAgreedHandler)agreedHandler
+                             rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
+    [[[EKEventStore alloc] init] requestAccessToEntityType:EKEntityTypeEvent completion:^(BOOL granted, NSError * _Nullable error) {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            granted ? agreedHandler() : rejectedHandler([YZPermissionManager eventsStatus]);
+        });
+    }];
+}
+
++ (void)requestRemindersPermissionAgreedHandler:(YZPermissionAgreedHandler)agreedHandler
+                                rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
+    [[[EKEventStore alloc] init] requestAccessToEntityType:EKEntityTypeReminder completion:^(BOOL granted, NSError * _Nullable error) {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            granted ? agreedHandler() : rejectedHandler([YZPermissionManager remindersStatus]);
+        });
+    }];
+}
+
++ (void)requestMicrophonePermissionAgreedHandler:(YZPermissionAgreedHandler)agreedHandler
+                             rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
+    [[AVAudioSession sharedInstance] requestRecordPermission:^(BOOL granted) {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            granted ? agreedHandler() : rejectedHandler([YZPermissionManager microphoneStatus]);
+        });
+    }];
+}
+
++ (void)requestCameraPermissionAgreedHandler:(YZPermissionAgreedHandler)agreedHandler
+                             rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
+    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            granted ? agreedHandler() : rejectedHandler([YZPermissionManager cameraStatus]);
+        });
+    }];
+}
+
++ (void)requestPhotosPermissionAgreedHandler:(YZPermissionAgreedHandler)agreedHandler
+                             rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
+       [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+           dispatch_sync(dispatch_get_main_queue(), ^{
+               status == PHAuthorizationStatusAuthorized ? agreedHandler() : rejectedHandler([YZPermissionManager photosStatus]);
+           });
+       }];
+}
+
++ (void)requestBluetoothPermissionAgreedHandler:(YZPermissionAgreedHandler)agreedHandler
+                                rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
     
 }
 
-+ (void)requestBluetoothPermissionAgreedHandler:(void(^)())agreedHandler
-                                rejectedHandler:(void(^)())rejectedHandler {
++ (void)requestMotionPermissionAgreedHandler:(YZPermissionAgreedHandler)agreedHandler
+                             rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
     
 }
 
-+ (void)requestMotionPermissionAgreedHandler:(void(^)())agreedHandler
-                             rejectedHandler:(void(^)())rejectedHandler {
-    
-}
-
-#pragma mark - get status
-+ (void)notificationsStatusWithCompletionHandler:(void(^)(PermissionStatus permissionStatus))completionHandler {
+#pragma mark - check permission
++ (void)notificationsStatusWithCompletionHandler:(YZPermissionCompletionHandler)completionHandler {
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(10.0)) {
         [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
             switch (settings.authorizationStatus) {
                 case UNAuthorizationStatusNotDetermined:
-                    completionHandler(PermissionStatusUnknown);
+                    completionHandler(YZPermissionStatusUnknown);
                     break;
                 case UNAuthorizationStatusDenied:
-                    completionHandler(PermissionStatusUnauthorized);
+                    completionHandler(YZPermissionStatusUnauthorized);
                     break;
                 case UNAuthorizationStatusAuthorized:
-                    completionHandler(PermissionStatusAuthorized);
+                    completionHandler(YZPermissionStatusAuthorized);
                     break;
             }
         }];
@@ -150,165 +217,163 @@
     }
 }
 
-+ (PermissionStatus)locationWhileInUseStatus {
++ (YZPermissionStatus)locationWhileInUseStatus {
     if ([CLLocationManager locationServicesEnabled]) {
-        return PermissionStatusDisabled;
+        return YZPermissionStatusDisabled;
     }
     
     CLAuthorizationStatus authorizationStatus = [CLLocationManager authorizationStatus];
     switch (authorizationStatus) {
         case kCLAuthorizationStatusAuthorizedWhenInUse:
         case kCLAuthorizationStatusAuthorizedAlways:
-            return PermissionStatusAuthorized;
+            return YZPermissionStatusAuthorized;
         case kCLAuthorizationStatusRestricted:
         case kCLAuthorizationStatusDenied:
-            return PermissionStatusUnauthorized;
+            return YZPermissionStatusUnauthorized;
         case kCLAuthorizationStatusNotDetermined:
-            return PermissionStatusUnknown;
+            return YZPermissionStatusUnknown;
     }
 }
 
-+ (PermissionStatus)locationAlwaysStatus {
++ (YZPermissionStatus)locationAlwaysStatus {
     if ([CLLocationManager locationServicesEnabled]) {
-        return PermissionStatusDisabled;
+        return YZPermissionStatusDisabled;
     }
     
     CLAuthorizationStatus authorizationStatus = [CLLocationManager authorizationStatus];
     switch (authorizationStatus) {
         case kCLAuthorizationStatusAuthorizedWhenInUse:
             // TODO: 从低权限到高权限 测试
-            return PermissionStatusUnknown;
+            return YZPermissionStatusUnknown;
         case kCLAuthorizationStatusAuthorizedAlways:
-            return PermissionStatusAuthorized;
+            return YZPermissionStatusAuthorized;
         case kCLAuthorizationStatusRestricted:
         case kCLAuthorizationStatusDenied:
-            return PermissionStatusUnauthorized;
+            return YZPermissionStatusUnauthorized;
         case kCLAuthorizationStatusNotDetermined:
-            return PermissionStatusUnknown;
+            return YZPermissionStatusUnknown;
     }
 }
 
-+ (PermissionStatus)contactsStatus {
++ (YZPermissionStatus)contactsStatus {
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(9.0)) {
         CNAuthorizationStatus authorizationStatus = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
         
         switch (authorizationStatus) {
             case CNAuthorizationStatusDenied:
             case CNAuthorizationStatusRestricted:
-                return PermissionStatusUnauthorized;
+                return YZPermissionStatusUnauthorized;
             case CNAuthorizationStatusAuthorized:
-                return PermissionStatusAuthorized;
+                return YZPermissionStatusAuthorized;
             case CNAuthorizationStatusNotDetermined:
-                return PermissionStatusUnknown;
+                return YZPermissionStatusUnknown;
         }
     } else {
         ABAuthorizationStatus authorizationStatus = ABAddressBookGetAuthorizationStatus();
         switch (authorizationStatus) {
             case kABAuthorizationStatusAuthorized:
-                return PermissionStatusAuthorized;
+                return YZPermissionStatusAuthorized;
             case kABAuthorizationStatusRestricted:
             case kABAuthorizationStatusDenied:
-                return PermissionStatusUnauthorized;
+                return YZPermissionStatusUnauthorized;
             case kABAuthorizationStatusNotDetermined:
-                return PermissionStatusUnknown;
+                return YZPermissionStatusUnknown;
             default:
                 break;
         }
     }
 }
 
-+ (PermissionStatus)eventsStatus {
++ (YZPermissionStatus)eventsStatus {
     EKAuthorizationStatus authorizationStatus = [EKEventStore authorizationStatusForEntityType:EKEntityTypeEvent];
     
     switch (authorizationStatus) {
         case EKAuthorizationStatusNotDetermined:
-            return PermissionStatusUnknown;
+            return YZPermissionStatusUnknown;
         case EKAuthorizationStatusRestricted:
         case EKAuthorizationStatusDenied:
-            return PermissionStatusUnauthorized;
+            return YZPermissionStatusUnauthorized;
         case EKAuthorizationStatusAuthorized:
-            return PermissionStatusAuthorized;
+            return YZPermissionStatusAuthorized;
         default:
             break;
     }
 }
 
-+ (PermissionStatus)remindersStatus {
++ (YZPermissionStatus)remindersStatus {
     EKAuthorizationStatus authorizationStatus = [EKEventStore authorizationStatusForEntityType:EKEntityTypeReminder];
     
     switch (authorizationStatus) {
         case EKAuthorizationStatusNotDetermined:
-            return PermissionStatusUnknown;
+            return YZPermissionStatusUnknown;
         case EKAuthorizationStatusRestricted:
         case EKAuthorizationStatusDenied:
-            return PermissionStatusUnauthorized;
+            return YZPermissionStatusUnauthorized;
         case EKAuthorizationStatusAuthorized:
-            return PermissionStatusAuthorized;
+            return YZPermissionStatusAuthorized;
         default:
             break;
     }
 }
 
-+ (PermissionStatus)microphoneStatus {
++ (YZPermissionStatus)microphoneStatus {
     AVAudioSessionRecordPermission authorizationStatus = [[AVAudioSession sharedInstance] recordPermission];
     switch (authorizationStatus) {
         case AVAudioSessionRecordPermissionDenied:
-            return PermissionStatusUnauthorized;
+            return YZPermissionStatusUnauthorized;
         case AVAudioSessionRecordPermissionGranted:
-            return PermissionStatusAuthorized;
+            return YZPermissionStatusAuthorized;
         case AVAudioSessionRecordPermissionUndetermined:
-            return PermissionStatusUnknown;
+            return YZPermissionStatusUnknown;
     }
 }
 
-//@property (nonatomic, assign) PermissionStatus motionStatus;
-
-+ (PermissionStatus)cameraStatus {
++ (YZPermissionStatus)cameraStatus {
     AVAuthorizationStatus authorizationStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
     switch (authorizationStatus) {
         case AVAuthorizationStatusAuthorized:
-            return PermissionStatusAuthorized;
+            return YZPermissionStatusAuthorized;
         case AVAuthorizationStatusRestricted:
         case AVAuthorizationStatusDenied:
-            return PermissionStatusUnauthorized;
+            return YZPermissionStatusUnauthorized;
         case AVAuthorizationStatusNotDetermined:
-            return PermissionStatusUnknown;
+            return YZPermissionStatusUnknown;
     }
 }
 
-+ (PermissionStatus)photosStatus {
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(8.0)) {
++ (YZPermissionStatus)photosStatus {
+//    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(8.0)) {
         PHAuthorizationStatus authorizationStatus = [PHPhotoLibrary authorizationStatus];
         switch (authorizationStatus) {
             case PHAuthorizationStatusAuthorized:
-                return PermissionStatusAuthorized;
+                return YZPermissionStatusAuthorized;
             case PHAuthorizationStatusDenied:
             case PHAuthorizationStatusRestricted:
-                return PermissionStatusUnauthorized;
+                return YZPermissionStatusUnauthorized;
             case PHAuthorizationStatusNotDetermined:
-                return PermissionStatusUnknown;
+                return YZPermissionStatusUnknown;
         }
-    } else {
-        ALAuthorizationStatus authorizationStatus = [ALAssetsLibrary authorizationStatus];
-        switch (authorizationStatus) {
-            case ALAuthorizationStatusAuthorized:
-                return PermissionStatusAuthorized;
-            case ALAuthorizationStatusDenied:
-            case ALAuthorizationStatusRestricted:
-                return PermissionStatusUnauthorized;
-            case ALAuthorizationStatusNotDetermined:
-                return PermissionStatusUnknown;
-        }
-    }
+//    } else {
+//        ALAuthorizationStatus authorizationStatus = [ALAssetsLibrary authorizationStatus];
+//        switch (authorizationStatus) {
+//            case ALAuthorizationStatusAuthorized:
+//                return YZPermissionStatusAuthorized;
+//            case ALAuthorizationStatusDenied:
+//            case ALAuthorizationStatusRestricted:
+//                return YZPermissionStatusUnauthorized;
+//            case ALAuthorizationStatusNotDetermined:
+//                return YZPermissionStatusUnknown;
+//        }
+//    }
 }
 
 
-+ (PermissionStatus)bluetoothStatus {
-    return PermissionStatusUnknown;
++ (YZPermissionStatus)bluetoothStatus {
+    return YZPermissionStatusUnknown;
 }
 
-+ (PermissionStatus)motionStatus {
-    return PermissionStatusUnknown;
++ (YZPermissionStatus)motionStatus {
+    return YZPermissionStatusUnknown;
 }
 
 @end

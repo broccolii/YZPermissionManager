@@ -7,9 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A4479B0A1E4C846A0052A623 /* PermissionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A4479B091E4C846A0052A623 /* PermissionViewController.m */; };
 		A4D8DF2B1E45B33100B026CF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A4D8DF2A1E45B33100B026CF /* main.m */; };
 		A4D8DF2E1E45B33100B026CF /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A4D8DF2D1E45B33100B026CF /* AppDelegate.m */; };
-		A4D8DF311E45B33100B026CF /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A4D8DF301E45B33100B026CF /* ViewController.m */; };
+		A4D8DF311E45B33100B026CF /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A4D8DF301E45B33100B026CF /* MainViewController.m */; };
 		A4D8DF341E45B33100B026CF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A4D8DF321E45B33100B026CF /* Main.storyboard */; };
 		A4D8DF361E45B33100B026CF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A4D8DF351E45B33100B026CF /* Assets.xcassets */; };
 		A4D8DF391E45B33100B026CF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A4D8DF371E45B33100B026CF /* LaunchScreen.storyboard */; };
@@ -17,12 +18,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A4479B081E4C846A0052A623 /* PermissionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PermissionViewController.h; sourceTree = "<group>"; };
+		A4479B091E4C846A0052A623 /* PermissionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PermissionViewController.m; sourceTree = "<group>"; };
 		A4D8DF261E45B33100B026CF /* Carrot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Carrot.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A4D8DF2A1E45B33100B026CF /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		A4D8DF2C1E45B33100B026CF /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		A4D8DF2D1E45B33100B026CF /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		A4D8DF2F1E45B33100B026CF /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		A4D8DF301E45B33100B026CF /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		A4D8DF2F1E45B33100B026CF /* MainViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
+		A4D8DF301E45B33100B026CF /* MainViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MainViewController.m; sourceTree = "<group>"; };
 		A4D8DF331E45B33100B026CF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		A4D8DF351E45B33100B026CF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A4D8DF381E45B33100B026CF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -63,8 +66,10 @@
 			children = (
 				A4D8DF2C1E45B33100B026CF /* AppDelegate.h */,
 				A4D8DF2D1E45B33100B026CF /* AppDelegate.m */,
-				A4D8DF2F1E45B33100B026CF /* ViewController.h */,
-				A4D8DF301E45B33100B026CF /* ViewController.m */,
+				A4D8DF2F1E45B33100B026CF /* MainViewController.h */,
+				A4D8DF301E45B33100B026CF /* MainViewController.m */,
+				A4479B081E4C846A0052A623 /* PermissionViewController.h */,
+				A4479B091E4C846A0052A623 /* PermissionViewController.m */,
 				A4D8DF401E45B48800B026CF /* YZPermissionManager.h */,
 				A4D8DF411E45B48800B026CF /* YZPermissionManager.m */,
 				A4D8DF321E45B33100B026CF /* Main.storyboard */,
@@ -156,10 +161,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A4D8DF311E45B33100B026CF /* ViewController.m in Sources */,
+				A4D8DF311E45B33100B026CF /* MainViewController.m in Sources */,
 				A4D8DF2E1E45B33100B026CF /* AppDelegate.m in Sources */,
 				A4D8DF421E45B48800B026CF /* YZPermissionManager.m in Sources */,
 				A4D8DF2B1E45B33100B026CF /* main.m in Sources */,
+				A4479B0A1E4C846A0052A623 /* PermissionViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

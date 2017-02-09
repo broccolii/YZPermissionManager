@@ -8,44 +8,51 @@
 
 #import <UIKit/UIKit.h>
 
-typedef NS_ENUM(NSInteger, PermissionStatus) {
-    PermissionStatusUnknown,
-    PermissionStatusAuthorized,
-    PermissionStatusUnauthorized,
-    PermissionStatusDisabled
+typedef NS_ENUM(NSInteger, YZPermissionStatus) {
+    YZPermissionStatusUnknown,
+    YZPermissionStatusAuthorized,
+    YZPermissionStatusUnauthorized,
+    YZPermissionStatusDisabled
 };
 
-typedef NS_ENUM(NSInteger, PermissionResource) {
-    PermissionResourceNotifications,
-    PermissionResourceLocationWhileInUse,
-    PermissionResourceLocationAlways,
-    PermissionResourceContacts,
-    PermissionResourceEvents,
-    PermissionResourceMicrophone,
-    PermissionResourceCamera,
-    PermissionResourcePhotos,
-    PermissionResourceReminders,
-    PermissionResourceBluetooth,
-    PermissionResourceMotion
+typedef NS_ENUM(NSInteger, YZPermissionResource) {
+    YZPermissionResourceNotifications,
+    YZPermissionResourceLocationWhileInUse,
+    YZPermissionResourceLocationAlways,
+    YZPermissionResourceContacts,
+    YZPermissionResourceEvents,
+    YZPermissionResourceMicrophone,
+    YZPermissionResourceCamera,
+    YZPermissionResourcePhotos,
+    YZPermissionResourceReminders,
+    YZPermissionResourceBluetooth,
+    YZPermissionResourceMotion
 };
+
+typedef void(^YZPermissionAgreedHandler)();
+typedef void(^YZPermissionRejectedHandler)(YZPermissionStatus status);
+typedef void(^YZPermissionCompletionHandler)(YZPermissionStatus status);
 
 @interface YZPermissionManager : NSObject
-// check permission
-// request permission
-+ (void)requestPermissionWithResource:(PermissionResource)resource
-                        agreedHandler:(void(^)())agreedHandler
-                      rejectedHandler:(void(^)())rejectedHandler;
 
-+ (void)notificationsStatusWithCompletionHandler:(void(^)(PermissionStatus permissionStatus))completionHandler;
-+ (PermissionStatus)locationWhileInUseStatus;
-+ (PermissionStatus)locationAlwaysStatus;
-+ (PermissionStatus)contactsStatus;
-+ (PermissionStatus)eventsStatus;
-+ (PermissionStatus)microphoneStatus;
-+ (PermissionStatus)cameraStatus;
-+ (PermissionStatus)photosStatus;
-+ (PermissionStatus)remindersStatus;
-+ (PermissionStatus)bluetoothStatus;
-+ (PermissionStatus)motionStatus;
+/**
+ check permission
+
+ @param resource permission type
+ @param completionHandler return permission status
+ */
++ (void)checkPermissionWithResource:(YZPermissionResource)resource
+                  completionHandler:(YZPermissionCompletionHandler)completionHandler;
+
+/**
+ request permission
+
+ @param resource permission type
+ @param agreedHandler the action after the success of the permission
+ @param rejectedHandler the action after the permissions failed
+ */
++ (void)requestPermissionWithResource:(YZPermissionResource)resource
+                        agreedHandler:(YZPermissionAgreedHandler)agreedHandler
+                      rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler;
 
 @end
