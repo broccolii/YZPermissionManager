@@ -15,6 +15,7 @@
 		A4D8DF361E45B33100B026CF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A4D8DF351E45B33100B026CF /* Assets.xcassets */; };
 		A4D8DF391E45B33100B026CF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A4D8DF371E45B33100B026CF /* LaunchScreen.storyboard */; };
 		A4D8DF421E45B48800B026CF /* YZPermissionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A4D8DF411E45B48800B026CF /* YZPermissionManager.m */; };
+		A4E920B51E4DF77100F19EA7 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4E920B41E4DF77100F19EA7 /* MapKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,7 @@
 		A4D8DF3A1E45B33100B026CF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A4D8DF401E45B48800B026CF /* YZPermissionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YZPermissionManager.h; sourceTree = "<group>"; };
 		A4D8DF411E45B48800B026CF /* YZPermissionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YZPermissionManager.m; sourceTree = "<group>"; };
+		A4E920B41E4DF77100F19EA7 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,6 +41,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A4E920B51E4DF77100F19EA7 /* MapKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -50,6 +53,7 @@
 			children = (
 				A4D8DF281E45B33100B026CF /* Carrot */,
 				A4D8DF271E45B33100B026CF /* Products */,
+				A4E920B31E4DF77100F19EA7 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -89,6 +93,14 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		A4E920B31E4DF77100F19EA7 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A4E920B41E4DF77100F19EA7 /* MapKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -122,6 +134,14 @@
 						CreatedOnToolsVersion = 8.2.1;
 						DevelopmentTeam = RJXPJ9T4QP;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+							com.apple.Maps.iOS = {
+								enabled = 0;
+							};
+						};
 					};
 				};
 			};

@@ -231,6 +231,7 @@ static CLLocationManager *locationManager;
                 locationAgent = [[YZLocationAgent alloc] initWithLocationUsage:YZLocationUsageWhenInUse
                                                                  agreedHandler:agreedHandler
                                                                rejectedHandler:rejectedHandler];
+                locationManager = [[CLLocationManager alloc] init];
                 locationManager.delegate = locationAgent;
                 [locationManager requestWhenInUseAuthorization];
             } else {
@@ -259,6 +260,7 @@ static CLLocationManager *locationManager;
                                                                  agreedHandler:agreedHandler
                                                                rejectedHandler:rejectedHandler];
                 locationManager.delegate = locationAgent;
+                locationManager = [[CLLocationManager alloc] init];
                 [locationManager requestAlwaysAuthorization];
             } else {
                 rejectedHandler(YZPermissionStatusDisabled);
