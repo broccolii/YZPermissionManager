@@ -84,6 +84,45 @@ static CLLocationManager *locationManager;
 
 @end
 
+@interface YZNotificationAgent: NSObject
+
+@property (nonatomic, copy) YZPermissionAgreedHandler agreedHandler;
+@property (nonatomic, copy) YZPermissionRejectedHandler rejectHandler;
+
+@end
+
+@implementation YZNotificationAgent
+
+- (instancetype)initWithFinishedRequestingAgreedHandler:(YZPermissionAgreedHandler)agreedHandler
+                                        rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
+    self = [super init];
+    if (!self) {
+        return nil;
+    }
+    
+    self.agreedHandler = agreedHandler;
+    self.rejectHandler = rejectedHandler;
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(requestingNotifications) name:UIApplicationWillResignActiveNotification object:nil];
+    
+    return self;
+}
+
+#pragma mark - NotificationCenter method
+- (void)requestingNotifications {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(finishedRequestingNotifications) name:UIApplicationDidBecomeActiveNotification object:nil];
+}
+
+- (void)finishedRequestingNotifications {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
+
+    
+}
+
+@end
+
 @implementation YZPermissionManager
 
 #pragma mark - request authorizationStatus
