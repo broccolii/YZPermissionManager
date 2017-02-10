@@ -118,7 +118,11 @@ static CLLocationManager *locationManager;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
 
-    
+    if ([[UIApplication sharedApplication] isRegisteredForRemoteNotifications]) {
+        self.agreedHandler();
+    } else {
+        self.rejectHandler(YZPermissionStatusUnknown);
+    }
 }
 
 @end
@@ -358,9 +362,10 @@ static CLLocationManager *locationManager;
             }
         }];
     } else {
-        UIUserNotificationSettings *currentUserNotificationSettings = [[UIApplication sharedApplication] currentUserNotificationSettings];
-        if (currentUserNotificationSettings.types == UIUserNotificationTypeNone) {
-            // TODO:
+        if ([[UIApplication sharedApplication] isRegisteredForRemoteNotifications]) {
+            completionHandler(YZPermissionStatusAuthorized);
+        } else {
+            completionHandler(YZPermissionStatusUnknown);
         }
     }
 }
