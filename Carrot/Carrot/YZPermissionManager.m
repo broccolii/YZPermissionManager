@@ -243,17 +243,11 @@ static YZNotificationAgent *notificationAgent = nil;
         case kCLAuthorizationStatusAuthorizedWhenInUse:
             agreedHandler();
             break;
-        case kCLAuthorizationStatusAuthorizedAlways: {
+        case kCLAuthorizationStatusAuthorizedAlways:
             [locationManager requestWhenInUseAuthorization];
-        }
             break;
-        case kCLAuthorizationStatusNotDetermined: {
-            if ([CLLocationManager locationServicesEnabled]) {
-                [locationManager requestWhenInUseAuthorization];
-            } else {
-                rejectedHandler(YZPermissionStatusDisabled);
-            }
-        }
+        case kCLAuthorizationStatusNotDetermined:
+            [locationManager requestWhenInUseAuthorization];
             break;
         default:
             rejectedHandler(YZPermissionStatusUnauthorized);
@@ -276,13 +270,8 @@ static YZNotificationAgent *notificationAgent = nil;
         case kCLAuthorizationStatusAuthorizedAlways:
             agreedHandler();
             break;
-        case kCLAuthorizationStatusNotDetermined: {
-            if ([CLLocationManager locationServicesEnabled]) {
-                [locationManager requestAlwaysAuthorization];
-            } else {
-                rejectedHandler(YZPermissionStatusDisabled);
-            }
-        }
+        case kCLAuthorizationStatusNotDetermined: 
+            [locationManager requestAlwaysAuthorization];
             break;
         default:
             rejectedHandler(YZPermissionStatusUnauthorized);
