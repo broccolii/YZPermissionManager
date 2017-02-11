@@ -19,9 +19,7 @@ NSString *YZPermissionResourceNameMapping[] = {
     [YZPermissionResourceMicrophone]            = @"Microphone",
     [YZPermissionResourceCamera]                = @"Camera",
     [YZPermissionResourcePhotos]                = @"Photos",
-    [YZPermissionResourceReminders]             = @"Reminders",
-    [YZPermissionResourceBluetooth]             = @"Bluetooth",
-    [YZPermissionResourceMotion]                = @"Motion"
+    [YZPermissionResourceReminders]             = @"Reminders"
 };
 
 @interface YZPermissionCellItem : NSObject
@@ -94,8 +92,6 @@ NSString *YZPermissionResourceNameMapping[] = {
         [items addObject:[YZPermissionCellItem itemWithResource:YZPermissionResourceCamera]];
         [items addObject:[YZPermissionCellItem itemWithResource:YZPermissionResourcePhotos]];
         [items addObject:[YZPermissionCellItem itemWithResource:YZPermissionResourceReminders]];
-        [items addObject:[YZPermissionCellItem itemWithResource:YZPermissionResourceBluetooth]];
-        [items addObject:[YZPermissionCellItem itemWithResource:YZPermissionResourceMotion]];
         
         _dataSource = items;
     }

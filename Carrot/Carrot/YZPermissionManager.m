@@ -21,11 +21,6 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
-typedef NS_ENUM(NSInteger, YZLocationUsageType) {
-    YZLocationUsageWhenInUse,
-    YZLocationUsageAlways
-};
-
 @class  YZLocationAgent;
 
 static YZLocationAgent *locationAgent;
@@ -33,7 +28,6 @@ static CLLocationManager *locationManager;
 
 @interface YZLocationAgent: NSObject<CLLocationManagerDelegate>
 
-@property (nonatomic, assign) YZLocationUsageType type;
 @property (nonatomic, copy) YZPermissionAgreedHandler agreedHandler;
 @property (nonatomic, copy) YZPermissionRejectedHandler rejectHandler;
 
@@ -41,15 +35,13 @@ static CLLocationManager *locationManager;
 
 @implementation YZLocationAgent
 
-- (instancetype)initWithLocationUsage:(YZLocationUsageType)type
-                        agreedHandler:(YZPermissionAgreedHandler)agreedHandler
+- (instancetype)initWithAgreedHandler:(YZPermissionAgreedHandler)agreedHandler
                       rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
     self = [super init];
     if (!self) {
         return nil;
     }
     
-    self.type = type;
     self.agreedHandler = agreedHandler;
     self.rejectHandler = rejectedHandler;
     
@@ -58,16 +50,11 @@ static CLLocationManager *locationManager;
 
 #pragma mark - CLLocationManagerDelegate
 - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
-    dispatch_sync(dispatch_get_main_queue(), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
         switch (status) {
-            case kCLAuthorizationStatusAuthorizedWhenInUse: {
-                self.type == YZLocationUsageWhenInUse ? self.agreedHandler() : self.rejectHandler(YZPermissionStatusUnauthorized);
-                locationAgent = nil;
-                locationManager = nil;
-            }
-                break;
+            case kCLAuthorizationStatusAuthorizedWhenInUse:
             case kCLAuthorizationStatusAuthorizedAlways: {
-                self.type == YZLocationUsageAlways ? self.agreedHandler() : self.rejectHandler(YZPermissionStatusUnauthorized);
+                self.agreedHandler();
                 locationAgent = nil;
                 locationManager = nil;
             }
@@ -117,7 +104,8 @@ static CLLocationManager *locationManager;
 - (void)finishedRequestingNotifications {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
-
+    
+    // TODO:
     if ([[UIApplication sharedApplication] isRegisteredForRemoteNotifications]) {
         self.agreedHandler();
     } else {
@@ -160,12 +148,6 @@ static CLLocationManager *locationManager;
         case YZPermissionResourceReminders:
             completionHandler([YZPermissionManager remindersStatus]);
             break;
-        case YZPermissionResourceBluetooth:
-            completionHandler([YZPermissionManager bluetoothStatus]);
-            break;
-        case YZPermissionResourceMotion:
-            completionHandler([YZPermissionManager motionStatus]);
-            break;
     }
 }
 
@@ -176,7 +158,7 @@ static CLLocationManager *locationManager;
     switch (resource) {
         case YZPermissionResourceNotifications:
             //            [YZPermissionManager requestNotificationsPermissionAgreedHandler:agreedHandler rejectedHandler:rejectedHandler];
-            NSAssert(YES, @"use requestNotificationsPermissionWithSetting");
+            NSAssert(NO, @"use requestNotificationsPermissionWithSetting");
             break;
         case YZPermissionResourceLocationWhileInUse:
             [YZPermissionManager requestLocationWhileInUsePermissionAgreedHandler:agreedHandler rejectedHandler:rejectedHandler];
@@ -202,37 +184,71 @@ static CLLocationManager *locationManager;
         case YZPermissionResourceReminders:
             [YZPermissionManager requestRemindersPermissionAgreedHandler:agreedHandler rejectedHandler:rejectedHandler];
             break;
-        case YZPermissionResourceBluetooth:
-            [YZPermissionManager requestBluetoothPermissionAgreedHandler:agreedHandler rejectedHandler:rejectedHandler];
-            break;
-        case YZPermissionResourceMotion:
-            [YZPermissionManager requestMotionPermissionAgreedHandler:agreedHandler rejectedHandler:rejectedHandler];
-            break;
     }
 }
 
+static YZNotificationAgent *notificationAgent = nil;
 + (void)requestNotificationsPermissionWithSetting:(UIUserNotificationSettings *)setting
                                     agreedHandler:(YZPermissionAgreedHandler)agreedHandler
                                   rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
-    
+    [YZPermissionManager notificationsStatusWithCompletionHandler:^(YZPermissionStatus status) {
+        switch (status) {
+            case YZPermissionStatusAuthorized: {
+                if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(10.0)) {
+                    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+                    [center requestAuthorizationWithOptions:(UNAuthorizationOptionBadge | UNAuthorizationOptionSound | UNAuthorizationOptionAlert) completionHandler:^(BOOL granted, NSError * _Nullable error) {
+                        if (granted) {
+                            agreedHandler();
+                        } else {
+                            rejectedHandler(YZPermissionStatusUnauthorized);
+                        }
+                    }];
+                } else {
+                    [[UIApplication sharedApplication] registerUserNotificationSettings:setting];
+                    agreedHandler();
+                }
+            }
+                break;
+            case YZPermissionStatusUnknown:{
+                if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(10.0)) {
+                    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+                    [center requestAuthorizationWithOptions:(UNAuthorizationOptionBadge | UNAuthorizationOptionSound | UNAuthorizationOptionAlert) completionHandler:^(BOOL granted, NSError * _Nullable error) {
+                        if (granted) {
+                            agreedHandler();
+                        } else {
+                            rejectedHandler(YZPermissionStatusUnauthorized);
+                        }
+                    }];
+                } else {
+                   notificationAgent = [[YZNotificationAgent alloc] initWithFinishedRequestingAgreedHandler:agreedHandler rejectedHandler:rejectedHandler];
+                    [[UIApplication sharedApplication] registerUserNotificationSettings:setting];
+                }
+            }
+                break;
+            default:
+                break;
+        }
+    }];
 }
 
 + (void)requestLocationWhileInUsePermissionAgreedHandler:(YZPermissionAgreedHandler)agreedHandler
                                          rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
+    
+    locationAgent = [[YZLocationAgent alloc] initWithAgreedHandler:agreedHandler
+                                                   rejectedHandler:rejectedHandler];
+    locationManager = [[CLLocationManager alloc] init];
+    locationManager.delegate = locationAgent;
+    
     switch ([CLLocationManager authorizationStatus]) {
         case kCLAuthorizationStatusAuthorizedWhenInUse:
             agreedHandler();
             break;
-        case kCLAuthorizationStatusAuthorizedAlways:
-            agreedHandler();
+        case kCLAuthorizationStatusAuthorizedAlways: {
+            [locationManager requestWhenInUseAuthorization];
+        }
             break;
         case kCLAuthorizationStatusNotDetermined: {
             if ([CLLocationManager locationServicesEnabled]) {
-                locationAgent = [[YZLocationAgent alloc] initWithLocationUsage:YZLocationUsageWhenInUse
-                                                                 agreedHandler:agreedHandler
-                                                               rejectedHandler:rejectedHandler];
-                locationManager = [[CLLocationManager alloc] init];
-                locationManager.delegate = locationAgent;
                 [locationManager requestWhenInUseAuthorization];
             } else {
                 rejectedHandler(YZPermissionStatusDisabled);
@@ -247,20 +263,21 @@ static CLLocationManager *locationManager;
 
 + (void)requestLocationAlwaysPermissionAgreedHandler:(YZPermissionAgreedHandler)agreedHandler
                                      rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
+    
+    locationAgent = [[YZLocationAgent alloc] initWithAgreedHandler:agreedHandler
+                                                   rejectedHandler:rejectedHandler];
+    locationManager.delegate = locationAgent;
+    locationManager = [[CLLocationManager alloc] init];
+    
     switch ([CLLocationManager authorizationStatus]) {
         case kCLAuthorizationStatusAuthorizedWhenInUse:
-            agreedHandler();
+            [locationManager requestAlwaysAuthorization];
             break;
         case kCLAuthorizationStatusAuthorizedAlways:
             agreedHandler();
             break;
         case kCLAuthorizationStatusNotDetermined: {
             if ([CLLocationManager locationServicesEnabled]) {
-                locationAgent = [[YZLocationAgent alloc] initWithLocationUsage:YZLocationUsageAlways
-                                                                 agreedHandler:agreedHandler
-                                                               rejectedHandler:rejectedHandler];
-                locationManager.delegate = locationAgent;
-                locationManager = [[CLLocationManager alloc] init];
                 [locationManager requestAlwaysAuthorization];
             } else {
                 rejectedHandler(YZPermissionStatusDisabled);
@@ -278,14 +295,14 @@ static CLLocationManager *locationManager;
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(9.0)) {
         [[[CNContactStore alloc] init] requestAccessForEntityType:CNEntityTypeContacts
                                                 completionHandler:^(BOOL granted, NSError * _Nullable error) {
-                                                    dispatch_sync(dispatch_get_main_queue(), ^{
+                                                    dispatch_async(dispatch_get_main_queue(), ^{
                                                         granted ? agreedHandler() : rejectedHandler([YZPermissionManager contactsStatus]);
                                                     });
                                                 }];
     } else {
         ABAddressBookRef addressBook = ABAddressBookCreateWithOptions(nil, nil);
         ABAddressBookRequestAccessWithCompletion(addressBook, ^(bool granted, CFErrorRef error) {
-            dispatch_sync(dispatch_get_main_queue(), ^{
+            dispatch_async(dispatch_get_main_queue(), ^{
                 granted ? agreedHandler() : rejectedHandler([YZPermissionManager contactsStatus]);
             });
         });
@@ -295,7 +312,7 @@ static CLLocationManager *locationManager;
 + (void)requestEventsPermissionAgreedHandler:(YZPermissionAgreedHandler)agreedHandler
                              rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
     [[[EKEventStore alloc] init] requestAccessToEntityType:EKEntityTypeEvent completion:^(BOOL granted, NSError * _Nullable error) {
-        dispatch_sync(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
             granted ? agreedHandler() : rejectedHandler([YZPermissionManager eventsStatus]);
         });
     }];
@@ -304,7 +321,7 @@ static CLLocationManager *locationManager;
 + (void)requestRemindersPermissionAgreedHandler:(YZPermissionAgreedHandler)agreedHandler
                                 rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
     [[[EKEventStore alloc] init] requestAccessToEntityType:EKEntityTypeReminder completion:^(BOOL granted, NSError * _Nullable error) {
-        dispatch_sync(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
             granted ? agreedHandler() : rejectedHandler([YZPermissionManager remindersStatus]);
         });
     }];
@@ -313,7 +330,7 @@ static CLLocationManager *locationManager;
 + (void)requestMicrophonePermissionAgreedHandler:(YZPermissionAgreedHandler)agreedHandler
                                  rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
     [[AVAudioSession sharedInstance] requestRecordPermission:^(BOOL granted) {
-        dispatch_sync(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
             granted ? agreedHandler() : rejectedHandler([YZPermissionManager microphoneStatus]);
         });
     }];
@@ -322,7 +339,7 @@ static CLLocationManager *locationManager;
 + (void)requestCameraPermissionAgreedHandler:(YZPermissionAgreedHandler)agreedHandler
                              rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
     [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-        dispatch_sync(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
             granted ? agreedHandler() : rejectedHandler([YZPermissionManager cameraStatus]);
         });
     }];
@@ -331,20 +348,10 @@ static CLLocationManager *locationManager;
 + (void)requestPhotosPermissionAgreedHandler:(YZPermissionAgreedHandler)agreedHandler
                              rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
     [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
-        dispatch_sync(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
             status == PHAuthorizationStatusAuthorized ? agreedHandler() : rejectedHandler([YZPermissionManager photosStatus]);
         });
     }];
-}
-
-+ (void)requestBluetoothPermissionAgreedHandler:(YZPermissionAgreedHandler)agreedHandler
-                                rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
-    
-}
-
-+ (void)requestMotionPermissionAgreedHandler:(YZPermissionAgreedHandler)agreedHandler
-                             rejectedHandler:(YZPermissionRejectedHandler)rejectedHandler {
-    
 }
 
 #pragma mark - check permission
@@ -373,10 +380,6 @@ static CLLocationManager *locationManager;
 }
 
 + (YZPermissionStatus)locationWhileInUseStatus {
-    if ([CLLocationManager locationServicesEnabled]) {
-        return YZPermissionStatusDisabled;
-    }
-    
     CLAuthorizationStatus authorizationStatus = [CLLocationManager authorizationStatus];
     switch (authorizationStatus) {
         case kCLAuthorizationStatusAuthorizedWhenInUse:
@@ -391,10 +394,6 @@ static CLLocationManager *locationManager;
 }
 
 + (YZPermissionStatus)locationAlwaysStatus {
-    if ([CLLocationManager locationServicesEnabled]) {
-        return YZPermissionStatusDisabled;
-    }
-    
     CLAuthorizationStatus authorizationStatus = [CLLocationManager authorizationStatus];
     switch (authorizationStatus) {
         case kCLAuthorizationStatusAuthorizedWhenInUse:

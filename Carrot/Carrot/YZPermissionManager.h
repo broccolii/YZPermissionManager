@@ -24,9 +24,7 @@ typedef NS_ENUM(NSInteger, YZPermissionResource) {
     YZPermissionResourceMicrophone,
     YZPermissionResourceCamera,
     YZPermissionResourcePhotos,
-    YZPermissionResourceReminders,
-    YZPermissionResourceBluetooth,
-    YZPermissionResourceMotion
+    YZPermissionResourceReminders
 };
 
 typedef void(^YZPermissionAgreedHandler)();
