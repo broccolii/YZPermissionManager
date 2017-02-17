@@ -71,6 +71,8 @@ static CLLocationManager *locationManager;
 
 @end
 
+
+static NSString * const kRequestNotificationPermission = @"com.YZPermission.kRequestNotificationPermission";
 @interface YZNotificationAgent: NSObject
 
 @property (nonatomic, copy) YZPermissionAgreedHandler agreedHandler;
@@ -106,6 +108,9 @@ static CLLocationManager *locationManager;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
     
     // TODO:
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kRequestNotificationPermission];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
     if ([[UIApplication sharedApplication] isRegisteredForRemoteNotifications]) {
         self.agreedHandler();
     } else {
@@ -220,7 +225,7 @@ static YZNotificationAgent *notificationAgent = nil;
                         }
                     }];
                 } else {
-                   notificationAgent = [[YZNotificationAgent alloc] initWithFinishedRequestingAgreedHandler:agreedHandler rejectedHandler:rejectedHandler];
+                    notificationAgent = [[YZNotificationAgent alloc] initWithFinishedRequestingAgreedHandler:agreedHandler rejectedHandler:rejectedHandler];
                     [[UIApplication sharedApplication] registerUserNotificationSettings:setting];
                 }
             }
@@ -270,7 +275,7 @@ static YZNotificationAgent *notificationAgent = nil;
         case kCLAuthorizationStatusAuthorizedAlways:
             agreedHandler();
             break;
-        case kCLAuthorizationStatusNotDetermined: 
+        case kCLAuthorizationStatusNotDetermined:
             [locationManager requestAlwaysAuthorization];
             break;
         default:
@@ -485,19 +490,35 @@ static YZNotificationAgent *notificationAgent = nil;
 }
 
 + (YZPermissionStatus)photosStatus {
-    PHAuthorizationStatus authorizationStatus = [PHPhotoLibrary authorizationStatus];
-    switch (authorizationStatus) {
-        case PHAuthorizationStatusAuthorized:
-            return YZPermissionStatusAuthorized;
-        case PHAuthorizationStatusDenied:
-        case PHAuthorizationStatusRestricted:
-            return YZPermissionStatusUnauthorized;
-        case PHAuthorizationStatusNotDetermined:
-            return YZPermissionStatusUnknown;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(8.0)) {
+        ALAuthorizationStatus authorizationStatus = [ALAssetsLibrary authorizationStatus];
+        switch (authorizationStatus) {
+            case ALAuthorizationStatusNotDetermined:
+                return YZPermissionStatusUnknown;
+                break;
+            case ALAuthorizationStatusRestricted:
+            case ALAuthorizationStatusDenied:
+                return YZPermissionStatusUnauthorized;
+                break;
+            case ALAuthorizationStatusAuthorized:
+                return YZPermissionStatusAuthorized;
+                break;
+        }
+    } else {
+        PHAuthorizationStatus authorizationStatus = [PHPhotoLibrary authorizationStatus];
+        switch (authorizationStatus) {
+            case PHAuthorizationStatusAuthorized:
+                return YZPermissionStatusAuthorized;
+            case PHAuthorizationStatusDenied:
+            case PHAuthorizationStatusRestricted:
+                return YZPermissionStatusUnauthorized;
+            case PHAuthorizationStatusNotDetermined:
+                return YZPermissionStatusUnknown;
+        }
     }
 }
 
-
+// TODO:
 + (YZPermissionStatus)bluetoothStatus {
     return YZPermissionStatusUnknown;
 }
